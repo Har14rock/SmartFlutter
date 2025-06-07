@@ -28,10 +28,10 @@ class SmartBudgetApp extends StatelessWidget {
         title: 'SmartBudget',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.green,
+          primarySwatch: Colors.orange,
           scaffoldBackgroundColor: Colors.white,
           appBarTheme: AppBarTheme(
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
           ),
         ),

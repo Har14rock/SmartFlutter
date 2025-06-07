@@ -18,7 +18,6 @@ class TransactionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Cargar transacciones desde API o local, y sincronizar si es necesario
   Future<void> loadTransactions({Function()? onSynced}) async {
     loading = true;
     notifyListeners();
@@ -27,14 +26,10 @@ class TransactionViewModel extends ChangeNotifier {
       final connection = await Connectivity().checkConnectivity();
 
       if (connection != ConnectivityResult.none) {
-        // Sincronizar locales primero
         await syncLocalToBackend();
-        // Cargar desde el backend
         transactions = await ApiService.getTransactions(_token);
-        // Notificar si hubo sincronización
         onSynced?.call();
       } else {
-        // Sin internet, mostrar transacciones locales
         transactions = await LocalDB.getUnsyncedTransactions();
       }
     } catch (e) {
@@ -46,7 +41,6 @@ class TransactionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Guardar nueva transacción online u offline
   Future<void> saveTransaction({
     required String title,
     required String description,
@@ -63,13 +57,12 @@ class TransactionViewModel extends ChangeNotifier {
       type: type,
       category: category,
       date: date,
-      imageUrl: '', // imagen solo online
+      imageUrl: '',
     );
 
     final connection = await Connectivity().checkConnectivity();
 
     if (connection != ConnectivityResult.none) {
-      // Con internet → guardar online
       await ApiService.createTransaction(
         token: _token,
         title: title,
@@ -81,14 +74,46 @@ class TransactionViewModel extends ChangeNotifier {
         imageFile: image,
       );
     } else {
-      // Sin internet → guardar en SQLite
       await LocalDB.insertTransaction(tx);
     }
 
     await loadTransactions();
   }
 
-  /// Sincronizar locales con backend cuando vuelve internet
+  Future<void> updateTransaction({
+    required String id,
+    required String title,
+    required String description,
+    required double amount,
+    required String type,
+    required String category,
+    required DateTime date,
+    File? image,
+  }) async {
+    await ApiService.updateTransaction(
+      token: _token,
+      id: id,
+      title: title,
+      description: description,
+      amount: amount,
+      type: type,
+      category: category,
+      date: date,
+      imageFile: image,
+    );
+
+    await loadTransactions();
+  }
+
+  Future<void> deleteTransaction(String id) async {
+    await ApiService.deleteTransaction(_token, id);
+    await loadTransactions();
+  }
+
+  Future<void> sendDemoTransactions() async {
+    await ApiService.sendDemoTransactions(_token);
+  }
+
   Future<void> syncLocalToBackend() async {
     final local = await LocalDB.getUnsyncedTransactions();
     if (local.isEmpty) return;

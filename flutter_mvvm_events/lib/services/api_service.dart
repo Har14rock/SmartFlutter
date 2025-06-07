@@ -6,7 +6,7 @@ import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost:3000/api"; // usa 10.0.2.2 en Android
+  static const String baseUrl = "http://localhost:3000/api";
 
   // 🔐 Login
   static Future<String?> login(String email, String password) async {
@@ -67,10 +67,7 @@ class ApiService {
     request.fields['date'] = date.toIso8601String();
 
     if (imageFile != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'image',
-        imageFile.path,
-      ));
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
     }
 
     final response = await request.send();
@@ -79,6 +76,59 @@ class ApiService {
       final respBody = await response.stream.bytesToString();
       print('Error al guardar transacción: $respBody');
       throw Exception('Error al guardar transacción');
+    }
+  }
+
+  // 🔄 Actualizar transacción
+  static Future<void> updateTransaction({
+    required String token,
+    required String id,
+    required String title,
+    required String description,
+    required double amount,
+    required String type,
+    required String category,
+    required DateTime date,
+    File? imageFile,
+  }) async {
+    var request = http.MultipartRequest(
+      'PUT',
+      Uri.parse("$baseUrl/transactions/$id"),
+    );
+
+    request.headers['Authorization'] = 'Bearer $token';
+    request.fields['title'] = title;
+    request.fields['description'] = description;
+    request.fields['amount'] = amount.toString();
+    request.fields['type'] = type;
+    request.fields['category'] = category;
+    request.fields['date'] = date.toIso8601String();
+
+    if (imageFile != null) {
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    }
+
+    final response = await request.send();
+
+    if (response.statusCode != 200) {
+      final respBody = await response.stream.bytesToString();
+      print('Error al actualizar transacción: $respBody');
+      throw Exception('Error al actualizar transacción');
+    }
+  }
+
+  // ❌ Eliminar transacción
+  static Future<void> deleteTransaction(String token, String id) async {
+    final response = await http.delete(
+      Uri.parse("$baseUrl/transactions/$id"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error al eliminar transacción');
     }
   }
 
@@ -117,6 +167,21 @@ class ApiService {
 
     if (response.statusCode != 200) {
       throw Exception('Error al crear categoría');
+    }
+  }
+
+  // 🧪 Transacciones demo
+  static Future<void> sendDemoTransactions(String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/transactions/demo'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error al enviar transacciones demo');
     }
   }
 }

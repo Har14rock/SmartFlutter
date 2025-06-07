@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - nginx
+
+  processor1:
+    build: ./processor
+    container_name: processor1
+
+  processor2:
+    build: ./processor
+    container_name: processor2
+
+  notifier:
+    build: ./notifier
+    container_name: notifier
+    ports:
+      - "4002:4002"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - processor1
+      - processor2

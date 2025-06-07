@@ -8,6 +8,8 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - printing (1.0.0):
+    - FlutterMacOS
   - ReachabilitySwift (5.2.4)
   - shared_preferences_foundation (0.0.1):
     - Flutter
@@ -21,6 +23,7 @@ DEPENDENCIES:
   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - printing (from `Flutter/ephemeral/.symlinks/plugins/printing/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/darwin`)
 
@@ -37,6 +40,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  printing:
+    :path: Flutter/ephemeral/.symlinks/plugins/printing/macos
   shared_preferences_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
   sqflite:
@@ -47,6 +52,7 @@ SPEC CHECKSUMS:
   file_selector_macos: 585232b688707857504f9cb5f985a7c97fe4dd30
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   path_provider_foundation: 608fcb11be570ce83519b076ab6a1fffe2474f05
+  printing: c4cf83c78fd684f9bc318e6aadc18972aa48f617
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   shared_preferences_foundation: 0b09b969fb36da5551c0bc4a2dbd9d0ff9387478
   sqflite: c35dad70033b8862124f8337cc994a809fcd9fa3

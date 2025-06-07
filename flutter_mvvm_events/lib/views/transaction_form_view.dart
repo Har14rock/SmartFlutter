@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../models/transaction_model.dart';
 import '../viewmodels/transaction_viewmodel.dart';
 
 class TransactionFormView extends StatefulWidget {
+  final Transaction? editingTransaction;
+
+  const TransactionFormView({this.editingTransaction});
+
   @override
   _TransactionFormViewState createState() => _TransactionFormViewState();
 }
@@ -18,6 +23,19 @@ class _TransactionFormViewState extends State<TransactionFormView> {
   String category = 'General';
   File? image;
   bool saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final tx = widget.editingTransaction;
+    if (tx != null) {
+      titleController.text = tx.title ?? '';
+      descriptionController.text = tx.description ?? '';
+      amountController.text = tx.amount?.toString() ?? '';
+      type = tx.type ?? 'gasto';
+      category = tx.category ?? 'General';
+    }
+  }
 
   Future<void> pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -46,15 +64,28 @@ class _TransactionFormViewState extends State<TransactionFormView> {
     final txVM = Provider.of<TransactionViewModel>(context, listen: false);
 
     try {
-      await txVM.saveTransaction(
-        title: title,
-        description: description,
-        amount: amount,
-        type: type,
-        category: category,
-        date: date,
-        image: image,
-      );
+      if (widget.editingTransaction != null) {
+        await txVM.updateTransaction(
+          id: widget.editingTransaction!.id!,
+          title: title,
+          description: description,
+          amount: amount,
+          type: type,
+          category: category,
+          date: date,
+          image: image,
+        );
+      } else {
+        await txVM.saveTransaction(
+          title: title,
+          description: description,
+          amount: amount,
+          type: type,
+          category: category,
+          date: date,
+          image: image,
+        );
+      }
 
       Navigator.pop(context);
     } catch (e) {
@@ -69,8 +100,10 @@ class _TransactionFormViewState extends State<TransactionFormView> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.editingTransaction != null;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Nueva Transacción')),
+      appBar: AppBar(title: Text(isEditing ? 'Editar Transacción' : 'Nueva Transacción')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
@@ -98,6 +131,7 @@ class _TransactionFormViewState extends State<TransactionFormView> {
             TextField(
               decoration: InputDecoration(labelText: 'Categoría'),
               onChanged: (val) => setState(() => category = val),
+              controller: TextEditingController(text: category),
             ),
             TextButton.icon(
               icon: Icon(Icons.image),
@@ -112,7 +146,7 @@ class _TransactionFormViewState extends State<TransactionFormView> {
                 ? Center(child: CircularProgressIndicator())
                 : ElevatedButton(
                     onPressed: save,
-                    child: Text('Guardar'),
+                    child: Text(isEditing ? 'Actualizar' : 'Guardar'),
                   ),
           ],
         ),

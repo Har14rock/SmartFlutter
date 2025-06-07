@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/transaction_viewmodel.dart';
+import '../models/transaction_model.dart';
+
 class DashboardView extends StatefulWidget {
   @override
   _DashboardViewState createState() => _DashboardViewState();
@@ -36,6 +38,24 @@ class _DashboardViewState extends State<DashboardView> {
               Navigator.pushNamed(context, '/report');
             },
           ),
+          IconButton(
+            icon: Icon(Icons.upload_file),
+            tooltip: 'Demo',
+            onPressed: () async {
+              await txVM.sendDemoTransactions();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Transacciones demo generadas')),
+              );
+              txVM.loadTransactions();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          ),
         ],
       ),
       body: txVM.loading
@@ -56,8 +76,34 @@ class _DashboardViewState extends State<DashboardView> {
                             )
                           : Icon(Icons.attach_money),
                       title: Text('${tx.title ?? ''} (${tx.type})'),
-                      subtitle: Text('${tx.category} - \$${tx.amount?.toStringAsFixed(2)}'),
-                      trailing: Text('${tx.date?.toLocal().toString().split(' ')[0]}'),
+                      subtitle: Text('${tx.category} - \$${(tx.amount ?? 0).toStringAsFixed(2)}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit),
+                            tooltip: 'Editar',
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/add-transaction',
+                                arguments: tx,
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            tooltip: 'Eliminar',
+                            onPressed: () async {
+                              await txVM.deleteTransaction(tx.id!);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Transacción eliminada')),
+                              );
+                              txVM.loadTransactions();
+                            },
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
